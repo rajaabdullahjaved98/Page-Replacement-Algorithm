@@ -1,0 +1,279 @@
+#include<iostream>
+#include<stdlib.h>
+
+using namespace std;
+int main()
+{
+	srand((unsigned)time(0));
+	int pages,frames;
+	pages=(rand()%10)+1;
+	frames=(rand()%10)+1;
+	cout<<"\n Number of Pages : "<<pages;
+	int reference_string[pages];
+	cout<<"\n Number of Frames : "<<frames;
+	cout<<"\n Enter Reference String Values: \n";
+	for(int m=0;m<pages;m++)
+	{
+		reference_string[m]=(rand()%100)+1;
+		cout<<"\n Value["<<m+1<<"] : ";
+		cin>>reference_string[m];
+	}
+	
+	//FOR FIFO
+	cout<<"\n---------------FIFO Page Replacement---------------\n";
+	int temp[frames],m,n,s,pageFaults=0;
+	for(m=0;m<frames;m++)
+	{
+		temp[m]=-1;
+	}
+	for(m=0;m<frames;m++)
+	{
+		s=0;
+		for(n=0;n<frames;n++)
+		{
+			if(reference_string[m]==temp[n])
+			{
+				s++;
+				pageFaults--;
+			}
+		}
+		pageFaults++;
+		
+		if((pageFaults<=frames)&&(s==0))
+		{
+			temp[m]=reference_string[m]
+		}		
+		else if(s==0)
+		{
+			temp[(pageFaults-1)%frames]=reference_string[m];
+		}
+		
+		cout<<endl;
+		for(n=0;n<frames;n++)
+		{
+			cout<<"\t"<<temp[n];
+		}
+	}
+	
+	cout<<"\n\nTotal Page Faults: "<<pageFaults;
+	cout<<"\n\nTotal Page Hits: "<<pages-pageFaults;
+	cout<<"\n\n------------------------------";
+	
+	//FOR LRU
+	
+	cout<<"\n----------LRU Page Replacement----------\n";
+	int q1[pages],pageFaults1=0;c1;k1=0,t,b[pages],c2[pages];
+	q1[k1]=reference_string[k1];
+	cout<<"\n\t"<<q1[k1]<<endl;
+	pageFaults1++;
+	k1++;
+	
+	for(int i=1;i<pages;i++)
+	{
+		c1=0;
+		for(int j=0;j<frames;j++)
+		{
+			if(reference_string[i]!=q1[j])
+			c1++;
+		}
+		
+		if(c1==frames)
+		{
+			pageFaults1++;
+			if(k1<frames)
+			{
+				q1[k1]=reference_string[i];
+				k1++;
+				for(int j=0;j<k1;j++)
+				cout<<q1[j]<<"\t";
+				cout<<endl;
+			}
+			else
+			{
+				for(int r=0;r<frames;r++)
+				{
+					c2[r]=0;
+					for(int j=i-1;j<pages;j--)
+					{
+						if(q1[r]!=reference_string[j])
+						c2[r]++;
+						else
+						break;
+					}
+				}
+				for(int r=0;r<frames;r++)
+					b[r]=c2[r];
+				for(int r=0;r<frames;r++)
+				{
+					for(int j=r;j<frames;j++)
+					{
+						if(b[r]<b[j])
+						{
+							t=b[r];
+							b[r]=b[j];
+							b[j]=t;
+						}
+					}
+				}
+				for(int r=0;r<frames;r++)
+				{
+					if(c2[r]==b[0])
+						q1[r]=reference_string[i];
+					cout<<q1[r]<<"\t";
+				}
+				cout<<endl;
+			}										
+		}	
+	}
+	cout<<"\n\n Total Page Faults: "<<pageFaults1;
+	cout<<"\n Total Page Hits: "<<pages-pageFaults1;
+	cout<<"\n\n------------------------------";
+	
+	//FOR LFU
+	cout<<"\n----------LFU PAGE REPLACEMENT----------\n;
+	int frm[frames],hit=0,count[50],time[50];
+	int j1,flag,least,minTime,temp1;
+	for(int i=0;i<frames;i++)
+	{
+		frm[i]=-1;
+	}
+	for(i=0;i<50;i++)
+	{
+		count[i]=0;
+	}
+	cout<<endl;
+	for(i=0;i<pages;i++)
+	{
+		count[reference_string[i]]++;
+		time[reference_string[i]]=i;
+		flag=1;
+		least=frm[0];
+		for(j1=0;j1<frames;j1++)
+		{
+			if(frm[j1]==-1||frm[j1]==reference_string[i])
+			{
+				if(frm[j1]!=-1)
+				{
+					hit++;		
+				}
+				flag=0;
+				frm[j1]=reference_string[i];
+				break;
+			}
+			if(count[least]>count[frm[j1]])
+			{
+				least=frm[j1];
+			}
+		}
+		if(flag)
+		{
+			minTime=50;
+			for(j1=0;j1<frames;j1++)
+			{
+			if(count[frm[j1]]==count[least]&&time[frm[j1]]<minTime)
+			{
+				temp1=j1;
+				minTime=time[frm[j1]];			
+			}
+		}
+		count[frm[temp1]]=0;
+		frm[temp1]=reference_string[i];
+		}
+		for(j1=0;j1<frames;j1++)
+		{
+			cout<<"\t"<<frm[j1];
+		}
+		cout<<endl;
+	}
+	cout<<"\n\n Total Page Faults: "<<pages-hit;
+	cout<<"\n Total Page Hits: "<<hit;
+	cout<<"\n\n------------------------------";
+	
+	//FOR OPTIMAL
+	cout<<"\n\n----------OPTIMAL PAGE REPLACEMENT----------\n";
+	int frm1[frames],temp2[frames],pageFaults2=0;
+	int flag1,flag2,flag3;
+	int i2,j2,k3,pos,max;
+	for(i2=0;i2<frames;++i2)
+	{
+		frm1[i2]=-1;
+	}
+	for(i2=0;i2<pages;++i2)
+	{
+		flag1=flag2=0;
+		for(j2=0;j2<frames;++j2)
+		{
+			if(frm1[j2]==reference_string[i2])
+			{
+				flag1=flag2=1;
+				break;
+			}
+		}
+		if(flag1==0)
+		{
+			for(j2=0;j2<frames;++j2)
+			{
+				if(frm1[j2]==-1)
+				{
+					pageFaults2++;
+					frm1[j2]=reference_string[i2];
+					flag2=1;
+					break;							
+				}
+			}
+		}
+		if(flag2==0)
+		{
+			flag3=0;
+			for(j2=0;j2<frames;++j2)
+			{
+				temp2[j2]=-1;
+				for(k3=i2+1;k3<pages;++k3)
+				{
+					if(frm1[j2]==reference_string[k3])
+					{
+					tenp2[j2]=k3;
+					break;
+					}
+				}
+			}
+		
+		for(j2=0;j2<frames;++j2)
+		{
+			if(temp2[j2]==-1)
+			{
+				pos=j2;
+				flag3=1;
+				break;
+			}
+		}
+		if(flag3==0)
+		{
+			max=temp2[0];
+			pos=0;
+			for(j2=1;j2<frames;++j2)
+			{
+				if(temp2[j2]>max)
+				{
+					max=temp2[j2];
+					pos=j2;
+				}
+			}
+		}
+		frm1[pos]=reference_string[i2];
+		pageFaults2++;
+		}
+		cout<<endl;
+		for(j2=0;j2<frames;++j2)
+		{
+			cout<<frm1[j2]<<"\t";
+		}
+	}
+	
+	cout<<"\n\n Total Page Faults: "<<pageFaults2;		
+	cout<<"\n Total Page Hits: "<<pages-pageFaults2;	
+	
+	cout<<"\n\n------------------------------";
+		
+	return 0;	
+}
